@@ -3,8 +3,10 @@ import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-void main() => runApp(MyApp());
-class MyApp extends StatelessWidget {
+import 'login.dart';
+import 'profile.dart';
+
+class Chat extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -17,23 +19,36 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-final String title;
-@override
+  final String title;
+  @override
   _MyHomePageState createState() => _MyHomePageState();
 }
+
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   List<String> _data = [];
-  static const String BOT_URL = "https://fast-chamber-75339.herokuapp.com/bot"; // replace with server address
+  static const String BOT_URL =
+      "https://fast-chamber-75339.herokuapp.com/bot"; // replace with server address
   TextEditingController _queryController = TextEditingController();
-@override
+
+  @override
   Widget build(BuildContext context) {
-return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("LaLin"),
+        title: Text("LaLin", style: TextStyle(fontSize: 30)),
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfilePage()),
+            );
+          },
+        ),
       ),
       body: Container(
         child: Column(
@@ -44,19 +59,17 @@ return Scaffold(
                     child: Text(
                       "Today, ${DateFormat("Hm").format(DateTime.now())}",
                       style: TextStyle(fontSize: 20),
-                     )
-              )
-            ),
+                    ))),
             Flexible(
-                child: AnimatedList(
-                  key: _listKey,
-                  initialItemCount: _data.length,
-                  itemBuilder: (BuildContext context, int index, Animation animation){
-                    return _buildItem(_data[index], animation, index);
-                  },     
-                ),
+              child: AnimatedList(
+                key: _listKey,
+                initialItemCount: _data.length,
+                itemBuilder:
+                    (BuildContext context, int index, Animation animation) {
+                  return _buildItem(_data[index], animation, index);
+                },
+              ),
             ),
-            
             Divider(
               height: 5,
               color: Colors.greenAccent,
@@ -72,17 +85,16 @@ return Scaffold(
                   child: TextFormField(
                     controller: _queryController,
                     decoration: InputDecoration(
-                        hintText: "Enter a message",
-                        hintStyle: TextStyle(color: Colors.black26),
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                      
+                      hintText: "Enter a message",
+                      hintStyle: TextStyle(color: Colors.black26),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
                     ),
                     style: TextStyle(fontSize: 16, color: Colors.black),
-                    onFieldSubmitted: (msg){
+                    onFieldSubmitted: (msg) {
                       this._getResponse();
                     },
                   ),
@@ -98,8 +110,6 @@ return Scaffold(
                         print("empty message");
                       } else {
                         this._getResponse();
-                        
-                        // _queryController.clear();
                       }
                       FocusScopeNode currentFocus = FocusScope.of(context);
                       if (!currentFocus.hasPrimaryFocus) {
@@ -111,47 +121,66 @@ return Scaffold(
           ],
         ),
       ),
-
     );
   }
-http.Client _getClient(){
+
+  http.Client _getClient() {
     return http.Client();
   }
-void _getResponse(){
-    if (_queryController.text.length>0){
+
+  void _getResponse() {
+    if (_queryController.text.length > 0) {
       this._insertSingleItem(_queryController.text);
       var client = _getClient();
-      try{
-        client.post(BOT_URL, body: {"query" : _queryController.text},)
-        ..then((response){
-          Map<String, dynamic> data = jsonDecode(response.body);
-          _insertSingleItem(data['response']+"<bot>");
-});
-      }catch(e){
+      try {
+        client.post(
+          BOT_URL,
+          body: {"query": _queryController.text, "stu_id": '60020671'},
+        )..then((response) {
+            Map<String, dynamic> data = jsonDecode(response.body);
+            _insertSingleItem(data['response'] + "<bot>");
+          });
+      } catch (e) {
         print("Failed -> $e");
-      }finally{
+      } finally {
         client.close();
         _queryController.clear();
       }
     }
   }
-void _insertSingleItem(String message){
+
+  void _insertSingleItem(String message) {
     _data.add(message);
-    _listKey.currentState.insertItem(_data.length-1);
+    _listKey.currentState.insertItem(_data.length - 1);
   }
-  Widget _buildItem(String item, Animation animation,int index){
+
+  Widget _buildItem(String item, Animation animation, int index) {
     bool mine = item.endsWith("<bot>");
+    print(item);
     return SizeTransition(
-      sizeFactor: animation,
-      child: Padding(padding: EdgeInsets.only(top: 10),
-      child: Container(
-        alignment: mine ?  Alignment.topLeft : Alignment.topRight,
-        child : Bubble(
+        sizeFactor: animation,
+        child: Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: Container(
+              alignment: mine ? Alignment.topLeft : Alignment.topRight,
+              child: Bubble(
                 child: Text(item.replaceAll("<bot>", "")),
-                color: mine ? Colors.blue : Colors.blue,
+                color: mine ? Colors.blue[200] : Colors.green[200],
                 padding: BubbleEdges.all(10),
               )),
-        )
-      );
+        ));
+  }
+
+  Container login() {
+    return Container(
+        width: 500,
+        height: 50,
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: RaisedButton(
+          textColor: Colors.white,
+          color: Colors.blue,
+          child: Text('เข้าสู่ระบบ'),
+          onPressed: () {},
+        ));
   }
 }
