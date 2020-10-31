@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'register.dart';
 import 'profile.dart';
 
@@ -68,10 +70,8 @@ class _State extends State<LoginPage> {
           child: Text('เข้าสู่ระบบ'),
           onPressed: () {
             value = emailController.text.trim();
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfilePage()),
-            );
+            print(value);
+            checkAuthe();
           },
         ));
   }
@@ -117,4 +117,51 @@ class _State extends State<LoginPage> {
               color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 70),
         ));
   }
+
+  Future<void> checkAuthe() async {
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    String _username = emailController.text.trim();
+    String _password = passwordController.text.trim();
+    await firebaseAuth
+        .signInWithEmailAndPassword(email: _username, password: _password)
+        .then((response) {
+      print('Authen Success');
+      MaterialPageRoute materialPageRoute =
+          MaterialPageRoute(builder: (BuildContext context) => ProfilePage(valueFromHome: emailController.text,));
+      Navigator.of(context).pushAndRemoveUntil(
+          materialPageRoute, (Route<dynamic> route) => false);
+    }).catchError((response) {
+      _showMyDialog();
+      print('ไม่ผ่าน');
+    });
+  }
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('ไม่สามารถเข้าสู่ระบบได้'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('รหัสผ่านไม่ถูกต้อง'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('ตกลง'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                emailController.text = "";
+                passwordController.text = "";
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

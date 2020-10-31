@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'chat.dart';
 import 'login.dart';
 
 class ProfilePage extends StatefulWidget {
+  final String valueFromHome;
+  ProfilePage({Key key, this.valueFromHome}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _State();
 }
 
 class _State extends State<ProfilePage> {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController name = TextEditingController();
-  TextEditingController cpasswordController = TextEditingController();
+  // String valuename = this.valueFromHome;
+  String name;
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _selectdata();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +35,9 @@ class _State extends State<ProfilePage> {
               children: <Widget>[
                 img(),
                 mySizebox(),
-                Text("ชื่อ ออฟ", style: TextStyle(fontSize: 30)),
-                Text("อีเมล์ 60020671@up.ac.th",style: TextStyle(fontSize: 30)),
+                Text("ชื่อ ${_selectdata()}", style: TextStyle(fontSize: 30)),
+                Text("อีเมล์ ${widget.valueFromHome}",
+                    style: TextStyle(fontSize: 30)),
                 mySizebox(),
                 chatInput(),
                 logout(),
@@ -62,7 +69,7 @@ class _State extends State<ProfilePage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Chat()),
+              MaterialPageRoute(builder: (context) => Chat(valueFromHome: widget.valueFromHome)),
             );
           },
         ));
@@ -82,6 +89,7 @@ class _State extends State<ProfilePage> {
               context,
               MaterialPageRoute(builder: (context) => LoginPage()),
             );
+            // selectdata();
           },
         ));
   }
@@ -90,4 +98,23 @@ class _State extends State<ProfilePage> {
         width: 8.0,
         height: 10.0,
       );
+  
+  String _selectdata() {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    // String item;
+    firestore
+        .collection("member")
+        .doc(widget.valueFromHome)
+        .get()
+        .then((value) {
+          setState(() {
+            this.name = value.get('name');
+          });
+      // print(value.data());
+    });
+    // print(this.name);
+    return this.name;
+  }
+
+  
 }

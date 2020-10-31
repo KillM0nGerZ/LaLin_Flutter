@@ -1,37 +1,50 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'login.dart';
 import 'profile.dart';
 
-class Chat extends StatelessWidget {
-  // This widget is the root of your application.
+// class Chat extends StatelessWidget {
+//   // This widget is the root of your application.
+//   final String valueFromHome;
+//   Chat({Key key, this.valueFromHome}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Chatbot Flask',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: MyHomePage(title: 'Flutter & Python'),
+//     );
+//   }
+// }
+
+// class Chat extends StatefulWidget {
+//   Chat({Key key, this.title}) : super(key: key);
+
+//   final String title;
+//   @override
+//   _MyHomePageState createState() => _MyHomePageState();
+// }
+
+class Chat extends StatefulWidget {
+  final String valueFromHome;
+  Chat({Key key, this.valueFromHome}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chatbot Flask',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter & Python'),
-    );
-  }
+  State<StatefulWidget> createState() => new _State();
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _State extends State<Chat> {
+  String name;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   List<String> _data = [];
   static const String BOT_URL =
       "https://fast-chamber-75339.herokuapp.com/bot"; // replace with server address
+      
   TextEditingController _queryController = TextEditingController();
 
   @override
@@ -45,7 +58,10 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ProfilePage()),
+              MaterialPageRoute(
+                  builder: (context) => ProfilePage(
+                        valueFromHome: widget.valueFromHome,
+                      )),
             );
           },
         ),
@@ -135,7 +151,11 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         client.post(
           BOT_URL,
-          body: {"query": _queryController.text, "stu_id": '60020671'},
+          body: {
+            "query": _queryController.text,
+            "stu_id": '60020671',
+            "name": _selectdata()
+          },
         )..then((response) {
             Map<String, dynamic> data = jsonDecode(response.body);
             _insertSingleItem(data['response'] + "<bot>");
@@ -182,5 +202,22 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Text('เข้าสู่ระบบ'),
           onPressed: () {},
         ));
+  }
+
+  String _selectdata() {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    // String item;
+    firestore
+        .collection("member")
+        .doc(widget.valueFromHome)
+        .get()
+        .then((value) {
+      setState(() {
+        this.name = value.get('name');
+      });
+      // print(value.data());
+    });
+    // print(this.name);
+    return this.name;
   }
 }
