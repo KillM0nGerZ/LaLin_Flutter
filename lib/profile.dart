@@ -98,21 +98,21 @@ class _State extends State<ProfilePage> {
         width: 8.0,
         height: 10.0,
       );
-  
+
+
   String _selectdata() {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     // String item;
     firestore
-        .collection("member")
-        .doc(widget.valueFromHome)
+        .collection("member") // ชื่อ collection
+        .doc(widget.valueFromHome) // ชื่อเอกสาร
         .get()
         .then((value) {
           setState(() {
-            this.name = value.get('name');
+            this.name = value.get('name');  //ชื่อคีย์ของค่า
           });
-      // print(value.data());
     });
-    // print(this.name);
+
     return this.name;
   }
 

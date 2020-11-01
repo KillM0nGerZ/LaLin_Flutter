@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'register.dart';
 import 'profile.dart';
 
@@ -13,6 +12,9 @@ class _State extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   String value;
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,8 +128,10 @@ class _State extends State<LoginPage> {
         .signInWithEmailAndPassword(email: _username, password: _password)
         .then((response) {
       print('Authen Success');
-      MaterialPageRoute materialPageRoute =
-          MaterialPageRoute(builder: (BuildContext context) => ProfilePage(valueFromHome: emailController.text,));
+      MaterialPageRoute materialPageRoute = MaterialPageRoute(
+          builder: (BuildContext context) => ProfilePage(
+                valueFromHome: emailController.text,
+              ));
       Navigator.of(context).pushAndRemoveUntil(
           materialPageRoute, (Route<dynamic> route) => false);
     }).catchError((response) {
@@ -135,6 +139,7 @@ class _State extends State<LoginPage> {
       print('ไม่ผ่าน');
     });
   }
+
   Future<void> _showMyDialog() async {
     return showDialog<void>(
       context: context,
@@ -163,5 +168,4 @@ class _State extends State<LoginPage> {
       },
     );
   }
-
 }
