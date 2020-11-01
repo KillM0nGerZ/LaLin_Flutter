@@ -1,4 +1,4 @@
-# LaLin_Chatbot
+# LaLin Chatbot
 
 พัฒนาแอปพลเคชัน Chatbot ด้วย Flutter
 
