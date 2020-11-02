@@ -1,6 +1,6 @@
 # LaLin Chatbot
 
-พัฒนาแอปพลเคชัน Chatbot ด้วย Flutter
+พัฒนาแอปพลิเคชัน Chatbot ด้วย Flutter
 
 ### หน้า Login
 ![1](https://user-images.githubusercontent.com/45454455/97809927-d7754a80-1ca2-11eb-8f2d-b6583d44c8e6.PNG)
